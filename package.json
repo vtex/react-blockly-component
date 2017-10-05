@@ -14,12 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "immutable": "^3.7.6",
+    "prop-types": "^15.6.0",
     "react-immutable-proptypes": "^2.1.0",
     "react-immutable-render-mixin": "^0.9.5"
   },
   "peerDependencies": {
-    "react": "^0.14 || ^15.0",
-    "react-dom": "^0.14 || ^15.0"
+    "react": "^0.14 || ^15.0.0 || ^16.0.0",
+    "react-dom": "^0.14 || ^15.0.0 || ^16.0.0"
   },
   "devDependencies": {
     "babel-cli": "~6.10.1",
