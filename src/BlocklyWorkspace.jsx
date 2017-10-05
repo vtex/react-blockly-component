@@ -1,6 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 
 var debounce = function(func, wait) {
 	var timeout;
@@ -15,7 +16,9 @@ var debounce = function(func, wait) {
 	};
 };
 
-var BlocklyWorkspace = React.createClass({
+var BlocklyWorkspace = createReactClass({
+  displayName: 'BlocklyWorkspace',
+
   propTypes: {
     initialXml: PropTypes.string,
     workspaceConfiguration: PropTypes.object,
