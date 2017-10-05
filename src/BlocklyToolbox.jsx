@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { is } from 'immutable';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
@@ -9,8 +10,8 @@ var BlocklyToolbox = React.createClass({
   propTypes: {
     categories: ImmutablePropTypes.list,
     blocks: ImmutablePropTypes.list,
-    processCategory: React.PropTypes.func,
-    didUpdate: React.PropTypes.func
+    processCategory: PropTypes.func,
+    didUpdate: PropTypes.func
   },
 
   renderCategories: function(categories) {

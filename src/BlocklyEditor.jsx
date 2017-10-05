@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import Immutable from 'immutable';
 
@@ -7,14 +8,14 @@ import BlocklyWorkspace from './BlocklyWorkspace';
 
 var BlocklyEditor = React.createClass({
   propTypes: {
-    initialXml: React.PropTypes.string,
-    workspaceConfiguration: React.PropTypes.object,
-    wrapperDivClassName: React.PropTypes.string,
-    toolboxCategories: React.PropTypes.array,
-    toolboxBlocks: React.PropTypes.array,
-    xmlDidChange: React.PropTypes.func,
-    onImportXmlError: React.PropTypes.func,
-    processToolboxCategory: React.PropTypes.func
+    initialXml: PropTypes.string,
+    workspaceConfiguration: PropTypes.object,
+    wrapperDivClassName: PropTypes.string,
+    toolboxCategories: PropTypes.array,
+    toolboxBlocks: PropTypes.array,
+    xmlDidChange: PropTypes.func,
+    onImportXmlError: PropTypes.func,
+    processToolboxCategory: PropTypes.func
   },
 
   toolboxDidUpdate: function() {
