@@ -58,6 +58,24 @@ const INITIAL_TOOLBOX_CATEGORIES = [
       },
     ],
   },
+  {
+    name: 'Test',
+    blocks: [
+      { type: 'text' },
+      {
+        type: 'text_print',
+        values: {
+          TEXT: {
+            type: 'text',
+            shadow: true,
+            fields: {
+              TEXT: 'abc',
+            },
+          },
+        },
+      },
+    ],
+  },
 ];
 
 class TestEditor extends React.Component {
