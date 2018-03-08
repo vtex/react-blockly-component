@@ -1,0 +1,27 @@
+[{
+    "type": "logic_and",
+    "message0": "and",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 315,
+    "tooltip": "",
+    "helpUrl": ""
+},
+{
+    "type": "logic_or",
+    "message0": "or",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 315,
+    "tooltip": "",
+    "helpUrl": ""
+},
+{
+    "type": "logic_not",
+    "message0": "not",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 315,
+    "tooltip": "",
+    "helpUrl": ""
+}]
