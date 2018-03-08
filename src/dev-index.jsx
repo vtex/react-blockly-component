@@ -1,98 +1,142 @@
 /* eslint-disable import/no-extraneous-dependencies */
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactBlocklyComponent from './index';
 
-const INITIAL_XML = '<xml xmlns="http://www.w3.org/1999/xhtml"><block type="text" x="70" y="30"><field name="TEXT"></field></block></xml>';
+const INITIAL_XML = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+const conditionBlocks = require('../resources/blocks.json');
 
-const INITIAL_TOOLBOX_CATEGORIES = [
-  {
-    name: 'Controls',
-    blocks: [
-      { type: 'controls_if' },
-      {
-        type: 'controls_repeat_ext',
-        values: {
-          TIMES: {
-            type: 'math_number',
-            shadow: true,
-            fields: {
-              NUM: 10,
-            },
-          },
-        },
-        statements: {
-          DO: {
-            type: 'text_print',
-            shadow: true,
-            values: {
-              TEXT: {
-                type: 'text',
-                shadow: true,
-                fields: {
-                  TEXT: 'abc',
-                },
-              },
-            },
-          },
-        },
+const CATEGORIES = [{
+  name: 'Conditional Prices',
+  blocks: [],
+}];
+
+function defineBlockTranslations() {
+  console.log('defining blocks');
+  Blockly.JavaScript.logic_if = (block) => {
+    let n = 0;
+    let code = '';
+    
+    do {
+      const branchCode = Blockly.JavaScript.statementToCode(block, `DO${n}`);
+      code += `(${branchCode})`;
+
+      n += 1;
+    } while (block.getInput(`IF${n}`));
+
+    return code;
+  };
+
+  Blockly.JavaScript.logic_ifnot = (block) => {
+    let n = 0;
+    let code = '';
+    
+    do {
+      const branchCode = Blockly.JavaScript.statementToCode(block, `DO${n}`);
+      code += `( (${branchCode}) | not)`;
+
+      n += 1;
+    } while (block.getInput(`IF${n}`));
+
+    return code;
+  };
+  Blockly.JavaScript.payment_method = (block) => {
+    const dropdownCondition = block.getFieldValue('condition');
+    const dropdownSubject = block.getFieldValue('subject');
+    const connector = dropdownCondition === 'is' ? '==' : '!=';
+
+    const code = `(first (.params[]? | select(.name == "paymentMethodId")) | (.value | tonumber) ${connector} ${dropdownSubject})`;
+    return code;
+  };
+
+  Blockly.JavaScript.logic_and = () => {
+    const code = ' and ';
+    return code;
+  };
+
+  Blockly.JavaScript.logic_or = () => {
+    const code = ' or ';
+    return code;
+  };
+
+  Blockly.JavaScript.logic_not = () => {
+    const code = ' not ';
+    return code;
+  };
+
+  Blockly.JavaScript.payment_bin = (block) => {
+    const dropdownCondition = block.getFieldValue('condition');
+    const binMax = block.getFieldValue('bin_max');
+    const binMin = block.getFieldValue('bin_min');
+
+    const connector = dropdownCondition === 'between' ? '' : 'not ';
+    console.log(binMin);
+
+    const code = `(first (.params[]? | select(.name == "restrictionsBins")) | ${connector} ((.value | tonumber) >= ${binMin}) and (first(.params[]? | select(.name == "restrictionsBins")) | (.value | tonumber) <= ${binMax}))`;
+    return code;
+  };
+
+  Blockly.JavaScript.user_utm = (block) => {
+    const dropdownCondition = block.getFieldValue('condition');
+    const utmType = block.getFieldValue('utm_type');
+    const dropdownSubject = block.getFieldValue('subject');
+
+    let code = '';
+    if (dropdownCondition === 'is' || dropdownCondition === 'is_not') {
+      const connector = dropdownCondition === 'is' ? '==' : '!=';
+      code = `(.${utmType} ${connector} "${dropdownSubject}")`;
+    }
+
+    if (dropdownCondition === 'contains' || dropdownCondition === 'does_not_contain') {
+      const connector = dropdownCondition === 'contains' ? '| contains(\'' : '| not (contains(\'';
+      const closePar = dropdownCondition === 'contains' ? '\')' : '\'))';
+      code = `(.${utmType} ${connector}${dropdownSubject}${closePar})`;
+    }
+
+    return code;
+  };
+
+  Blockly.JavaScript.user_firstbuy = (block) => {
+    const dropdownCondition = block.getFieldValue('condition');
+    const connector = dropdownCondition === 'is' ? '==' : '!=';
+
+    const code = `(.isFirstBuy ${connector} true)`;
+    return code;
+  };
+}
+
+function createBlocks() {
+  console.log(conditionBlocks);
+  const types = [];
+  conditionBlocks.forEach((element) => {
+    const { type } = element;
+    types.push(type);
+    Blockly.Blocks[type] = {
+      init() {
+        this.jsonInit(element);
       },
-    ],
-  },
-  {
-    name: 'Text',
-    blocks: [
-      { type: 'text' },
-      {
-        type: 'text_print',
-        values: {
-          TEXT: {
-            type: 'text',
-            shadow: true,
-            fields: {
-              TEXT: 'abc',
-            },
-          },
-        },
-      },
-    ],
-  },
-];
+    };
+  });
+  // Extract to another function later on
+  types.forEach((element) => {
+    const block = { type: element };
+    console.log(block);
+    CATEGORIES[0].blocks.push(block);
+  });
+
+  CATEGORIES[0].blocks.push({ type: 'controls_if' });
+
+  defineBlockTranslations();
+}
+
+createBlocks();
 
 class TestEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      toolboxCategories: INITIAL_TOOLBOX_CATEGORIES,
+      toolboxCategories: CATEGORIES,
     };
-  }
-
-  componentDidMount = () => {
-    window.setTimeout(() => {
-      this.setState({
-        toolboxCategories: this.state.toolboxCategories.concat([
-          {
-            name: 'Text2',
-            blocks: [
-              { type: 'text' },
-              {
-                type: 'text_print',
-                values: {
-                  TEXT: {
-                    type: 'text',
-                    shadow: true,
-                    fields: {
-                      TEXT: 'abc',
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        ]),
-      });
-    }, 2000);
   }
 
   workspaceDidChange = (workspace) => {
@@ -102,7 +146,6 @@ class TestEditor extends React.Component {
     const code = Blockly.JavaScript.workspaceToCode(workspace);
     document.getElementById('code').value = code;
   }
-
   render = () => (
     <ReactBlocklyComponent.BlocklyEditor
       toolboxCategories={this.state.toolboxCategories}
@@ -120,7 +163,6 @@ class TestEditor extends React.Component {
     />
   )
 }
-
 window.addEventListener('load', () => {
   const editor = React.createElement(TestEditor);
   ReactDOM.render(editor, document.getElementById('blockly'));
