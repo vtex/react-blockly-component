@@ -3,20 +3,43 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ReactBlocklyComponent from './index';
 
-const INITIAL_XML = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+const fetch = require('node-fetch');
 const conditionBlocks = require('../resources/blocks.json');
 
+const INITIAL_XML = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+const paymentsOptionsURL = 'https://mastercatalog.vtexcommercestable.com.br/api/rnb/pvt/paymentsystems/1';
+const paymentsOptionsMap = new Map();
 const CATEGORIES = [{
   name: 'Conditional Prices',
   blocks: [],
 }];
+
+
+function doFetch() {
+  // Payment methods
+  fetch(paymentsOptionsURL, {
+    method: 'GET',
+    mode: 'cors',
+    Accept: 'application/json, text/plain, */*',
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+    },
+  }).then(
+    responseArray =>
+      responseArray.forEach(response => paymentsOptionsMap.set(response.id, response.value)),
+    console.log(paymentsOptionsMap),
+    conditionBlocks.find(element => element.type === 'payment_method')
+      .args0.find(element => element.name === 'subject').option.push(paymentsOptionsMap),
+    (error) => { console.log('fucking error: ', error); },
+  );
+}
 
 function defineBlockTranslations() {
   console.log('defining blocks');
   Blockly.JavaScript.logic_if = (block) => {
     let n = 0;
     let code = '';
-    
+
     do {
       const branchCode = Blockly.JavaScript.statementToCode(block, `DO${n}`);
       code += `(${branchCode})`;
@@ -30,7 +53,7 @@ function defineBlockTranslations() {
   Blockly.JavaScript.logic_ifnot = (block) => {
     let n = 0;
     let code = '';
-    
+
     do {
       const branchCode = Blockly.JavaScript.statementToCode(block, `DO${n}`);
       code += `( (${branchCode}) | not)`;
@@ -106,6 +129,7 @@ function defineBlockTranslations() {
 }
 
 function createBlocks() {
+  doFetch();
   console.log(conditionBlocks);
   const types = [];
   conditionBlocks.forEach((element) => {
@@ -117,6 +141,7 @@ function createBlocks() {
       },
     };
   });
+
   // Extract to another function later on
   types.forEach((element) => {
     const block = { type: element };
