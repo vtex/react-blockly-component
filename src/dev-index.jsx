@@ -85,10 +85,10 @@ class TestEditor extends React.Component {
   defineBlockTranslations = () => {
     Blockly.JavaScript.payment_method = (block) => {
       const dropdownCondition = block.getFieldValue('condition');
-      const dropdownSubject = block.getFieldValue('subject');
+      const subject = block.getFieldValue('subject');
       const connector = dropdownCondition === 'is' ? '==' : '!=';
 
-      const code = `(first (.params[]? | select(.name == "paymentMethodId")) | (.value | tonumber) ${connector} ${dropdownSubject})`;
+      const code = `(first (.params[]? | select(.name == "paymentMethodId")) | (.value | tonumber) ${connector} ${subject})`;
       return code;
     };
 
@@ -141,18 +141,37 @@ class TestEditor extends React.Component {
     Blockly.JavaScript.user_utm = (block) => {
       const dropdownCondition = block.getFieldValue('condition');
       const utmType = block.getFieldValue('utm_type');
-      const dropdownSubject = block.getFieldValue('subject');
+      const subject = block.getFieldValue('subject');
 
       let code = '';
       if (dropdownCondition === 'is' || dropdownCondition === 'is_not') {
         const connector = dropdownCondition === 'is' ? '==' : '!=';
-        code = `(.${utmType} ${connector} "${dropdownSubject}")`;
+        code = `(.${utmType} ${connector} "${subject}")`;
       }
 
       if (dropdownCondition === 'contains' || dropdownCondition === 'does_not_contain') {
         const connector = dropdownCondition === 'contains' ? '| contains("' : '| (contains("';
         const closePar = dropdownCondition === 'contains' ? '")' : '") | not)';
-        code = `(.${utmType} ${connector}${dropdownSubject}${closePar})`;
+        code = `(.${utmType} ${connector}${subject}${closePar})`;
+      }
+
+      return code;
+    };
+
+    Blockly.JavaScript.user_mail = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const subject = block.getFieldValue('subject');
+
+      let code = '';
+      if (dropdownCondition === 'is' || dropdownCondition === 'is_not') {
+        const connector = dropdownCondition === 'is' ? '==' : '!=';
+        code = `(.email ${connector} "${subject}")`;
+      }
+
+      if (dropdownCondition === 'contains' || dropdownCondition === 'does_not_contain') {
+        const connector = dropdownCondition === 'contains' ? '| contains("' : '| (contains("';
+        const closePar = dropdownCondition === 'contains' ? '")' : '") | not)';
+        code = `(.email ${connector}${subject}${closePar})`;
       }
 
       return code;
@@ -163,6 +182,36 @@ class TestEditor extends React.Component {
       const connector = dropdownCondition === 'is' ? '==' : '!=';
 
       const code = `(.isFirstBuy ${connector} true)`;
+      return code;
+    };
+
+    Blockly.JavaScript.origin = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const subject = block.getFieldValue('subject');
+
+      const connector = dropdownCondition === 'is' ? '==' : '!=';
+
+      const code = `(.origin ${connector} "${subject}")`;
+      return code;
+    };
+
+    Blockly.JavaScript.total_price = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const price = block.getFieldValue('price');
+
+      const connector = dropdownCondition === 'more' ? '>=' : '!=';
+
+      const code = `(reduce .items[].price as $price (0; . + $price) ${connector} ${price})`;
+      return code;
+    };
+
+    Blockly.JavaScript.total_items = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const quantity = block.getFieldValue('quantity');
+
+      const connector = dropdownCondition === 'more' ? '>=' : '!=';
+
+      const code = `(reduce .items[].quantity as $qtd (0; . + $qtd) ${connector} ${quantity})`;
       return code;
     };
   }
