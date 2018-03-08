@@ -39,6 +39,7 @@ function createBlocks() {
     CATEGORIES[0].blocks.push(block);
   });
 
+  // Adding User Context blocks
   types = [];
   userBlocks.forEach((element) => {
     const { type } = element;
@@ -55,6 +56,7 @@ function createBlocks() {
     CATEGORIES[1].blocks.push(block);
   });
 
+  // Adding operator blocks
   types = [];
   operatorBlocks.forEach((element) => {
     const { type } = element;
