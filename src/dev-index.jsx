@@ -214,6 +214,17 @@ class TestEditor extends React.Component {
       const code = `(reduce .items[].quantity as $qtd (0; . + $qtd) ${connector} ${quantity})`;
       return code;
     };
+
+    Blockly.JavaScript.zip_code_interval = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const ZipMax = block.getFieldValue('zip_max');
+      const zipMin = block.getFieldValue('zip_min');
+
+      const firstConnector = dropdownCondition === 'between' ? '' : '(';
+      const secondConnector = dropdownCondition === 'between' ? '' : ' | not )';
+      const code = `${firstConnector}(first (.params[]? | select(.name == "zipCode@Shipping")) | (.value | tonumber) >= ${zipMin}) and (first(.params[]? | select(.name == "zipCode@Shipping")) | (.value | tonumber) <= ${ZipMax})${secondConnector}`;
+      return code;
+    };
   }
   workspaceDidChange = (workspace) => {
     const newXml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace));
