@@ -1,4 +1,40 @@
-[{
+[  {
+    "type": "logic_ifnot",
+    "message0": "if not %1 %2",
+    "args0": [
+      {
+        "type": "input_dummy"
+      },
+      {
+        "type": "input_statement",
+        "name": "DO0"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "If the logic inside this block evaluates to false",
+    "helpUrl": ""
+  },
+  {
+    "type": "logic_if",
+    "message0": "if %1 %2",
+    "args0": [
+      {
+        "type": "input_dummy"
+      },
+      {
+        "type": "input_statement",
+        "name": "DO0"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "If the logic inside this block evaluates to true",
+    "helpUrl": ""
+  },
+  {
   "type": "payment_method",
   "message0": "Payment method %1 %2",
   "args0": [
