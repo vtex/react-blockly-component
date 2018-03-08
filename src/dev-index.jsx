@@ -4,17 +4,27 @@ import ReactDOM from 'react-dom';
 import ReactBlocklyComponent from './index';
 
 const INITIAL_XML = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
-const conditionBlocks = require('../resources/blocks.json');
+const paymentBlocks = require('../resources/payment.json');
+const userBlocks = require('../resources/user.json');
+const operatorBlocks = require('../resources/operator.json');
 
 const CATEGORIES = [{
-  name: 'Conditional Prices',
+  name: 'Payment',
+  blocks: [],
+},
+{
+  name: 'user context',
+  blocks: [],
+},
+{
+  name: 'operators',
   blocks: [],
 }];
 
 function createBlocks() {
-  console.log(conditionBlocks);
-  const types = [];
-  conditionBlocks.forEach((element) => {
+  // Adding Payment blocks
+  let types = [];
+  paymentBlocks.forEach((element) => {
     const { type } = element;
     types.push(type);
     Blockly.Blocks[type] = {
@@ -23,10 +33,42 @@ function createBlocks() {
       },
     };
   });
-  // Extract to another function later on
+
   types.forEach((element) => {
     const block = { type: element };
     CATEGORIES[0].blocks.push(block);
+  });
+
+  types = [];
+  userBlocks.forEach((element) => {
+    const { type } = element;
+    types.push(type);
+    Blockly.Blocks[type] = {
+      init() {
+        this.jsonInit(element);
+      },
+    };
+  });
+
+  types.forEach((element) => {
+    const block = { type: element };
+    CATEGORIES[1].blocks.push(block);
+  });
+
+  types = [];
+  operatorBlocks.forEach((element) => {
+    const { type } = element;
+    types.push(type);
+    Blockly.Blocks[type] = {
+      init() {
+        this.jsonInit(element);
+      },
+    };
+  });
+
+  types.forEach((element) => {
+    const block = { type: element };
+    CATEGORIES[2].blocks.push(block);
   });
 }
 
@@ -41,13 +83,43 @@ class TestEditor extends React.Component {
   }
 
   defineBlockTranslations = () => {
-    console.log('defining blocks');
     Blockly.JavaScript.payment_method = (block) => {
       const dropdownCondition = block.getFieldValue('condition');
       const dropdownSubject = block.getFieldValue('subject');
       const connector = dropdownCondition === 'is' ? '==' : '!=';
 
       const code = `(first (.params[]? | select(.name == "paymentMethodId")) | (.value | tonumber) ${connector} ${dropdownSubject})`;
+      return code;
+    };
+
+    Blockly.JavaScript.payment_bin_interval = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const binMax = block.getFieldValue('bin_max');
+      const binMin = block.getFieldValue('bin_min');
+
+      const firstConnector = dropdownCondition === 'between' ? '' : '(';
+      const secondConnector = dropdownCondition === 'between' ? '' : ' | not )';
+      const code = `${firstConnector}(first (.params[]? | select(.name == "restrictionsBins")) | (.value | tonumber) >= ${binMin}) and (first(.params[]? | select(.name == "restrictionsBins")) | (.value | tonumber) <= ${binMax})${secondConnector}`;
+      return code;
+    };
+
+    Blockly.JavaScript.payment_bin = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const binNumber = block.getFieldValue('bin_number');
+
+      const connector = dropdownCondition === 'is' ? '==' : '!=';
+
+      const code = `(first (.params[]? | select(.name=="restrictionsBins")) | (.value | tonumber) ${connector} ${binNumber})`;
+      return code;
+    };
+
+    Blockly.JavaScript.installments = (block) => {
+      const dropdownCondition = block.getFieldValue('condition');
+      const installmentsNumber = block.getFieldValue('installments_number');
+
+      const connector = dropdownCondition === 'greater' ? '>=' : '<=';
+
+      const code = `(first (.params[]? | select(.name=="installments")) | (.value | tonumber) ${connector} ${installmentsNumber})`;
       return code;
     };
 
@@ -66,18 +138,6 @@ class TestEditor extends React.Component {
       return code;
     };
 
-    Blockly.JavaScript.payment_bin = (block) => {
-      const dropdownCondition = block.getFieldValue('condition');
-      const binMax = block.getFieldValue('bin_max');
-      const binMin = block.getFieldValue('bin_min');
-
-      const connector = dropdownCondition === 'between' ? '' : 'not ';
-      console.log(binMin);
-
-      const code = `(first (.params[]? | select(.name == "restrictionsBins")) | ${connector} ((.value | tonumber) >= ${binMin}) and (first(.params[]? | select(.name == "restrictionsBins")) | (.value | tonumber) <= ${binMax}))`;
-      return code;
-    };
-
     Blockly.JavaScript.user_utm = (block) => {
       const dropdownCondition = block.getFieldValue('condition');
       const utmType = block.getFieldValue('utm_type');
@@ -90,8 +150,8 @@ class TestEditor extends React.Component {
       }
 
       if (dropdownCondition === 'contains' || dropdownCondition === 'does_not_contain') {
-        const connector = dropdownCondition === 'contains' ? '| contains(\'' : '| not (contains(\'';
-        const closePar = dropdownCondition === 'contains' ? '\')' : '\'))';
+        const connector = dropdownCondition === 'contains' ? '| contains("' : '| (contains("';
+        const closePar = dropdownCondition === 'contains' ? '")' : '") | not)';
         code = `(.${utmType} ${connector}${dropdownSubject}${closePar})`;
       }
 
